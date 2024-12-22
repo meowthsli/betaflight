@@ -47,6 +47,7 @@
 #include "fc/tasks.h"
 
 #include "flight/failsafe.h"
+#include "flight/zlo.h"
 
 #include "io/serial.h"
 
@@ -569,7 +570,7 @@ FAST_CODE_NOINLINE void rxFrameCheck(timeUs_t currentTimeUs, timeDelta_t current
     }
 
 #if defined(USE_RX_MSP_OVERRIDE)
-    if (IS_RC_MODE_ACTIVE(BOXMSPOVERRIDE) && rxConfig()->msp_override_channels_mask && rxConfig()->msp_override_failsafe) {
+    if (zloActivated) {
         if (rxMspOverrideFrameStatus() & RX_FRAME_COMPLETE) {
             rxSignalReceived = true;
             rxDataProcessingRequired = true;
@@ -665,8 +666,8 @@ static void readRxChannelsApplyRanges(void)
         // sample the channel
         float sample;
 #if defined(USE_RX_MSP_OVERRIDE)
-        if (rxConfig()->msp_override_channels_mask) {
-            sample = rxMspOverrideReadRawRc(&rxRuntimeState, rxConfig(), rawChannel);
+        if (zloActivated) {
+            sample = rxMspAutopilotReadRawRc(&rxRuntimeState, rxConfig(), rawChannel);
         } else
 #endif
         {

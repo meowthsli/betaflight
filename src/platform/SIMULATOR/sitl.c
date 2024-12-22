@@ -82,6 +82,14 @@ static char simulator_ip[32] = "127.0.0.1";
 #define PORT_STATE      9003    // In
 #define PORT_RC         9004    // In
 
+void sitl_printf(const char * pStr, ...) {
+    va_list vl;
+    va_start(vl, pStr);
+    vprintf(pStr, vl);
+    va_end(vl);
+    fflush(stdout);
+}
+
 int targetParseArgs(int argc, char * argv[])
 {
     //The first argument should be target IP.

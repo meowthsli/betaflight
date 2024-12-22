@@ -17,16 +17,17 @@
 ##############################
 
 # Set up ARM (STM32) SDK
-ARM_SDK_BASE_DIR ?= $(TOOLS_DIR)/arm-gnu-toolchain-13.3.rel1
+# ARM_SDK_BASE_DIR ?= $(TOOLS_DIR)/arm-gnu-toolchain-13.3.rel1
+ARM_SDK_BASE_DIR ?= $(TOOLS_DIR)/arm-gnu-toolchain-13.2.Rel1
 # Checked below, Should match the output of $(shell arm-none-eabi-gcc -dumpversion)
-GCC_REQUIRED_VERSION ?= 13.3.1
+GCC_REQUIRED_VERSION ?= 13.2
 
 ## arm_sdk_install   : Install Arm SDK
 .PHONY: arm_sdk_install
 
 # source: https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
 ifeq ($(OSFAMILY), linux)
-  ARM_SDK_URL := https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz
+  # ARM_SDK_URL := https://developer.arm.com/-/media/Files/downloads/gnu/13.3.rel1/binrel/arm-gnu-toolchain-13.3.rel1-x86_64-arm-none-eabi.tar.xz
   ARM_SDK_DIR := $(ARM_SDK_BASE_DIR)-x86_64-arm-none-eabi
 endif
 

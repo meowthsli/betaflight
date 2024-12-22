@@ -26,6 +26,7 @@
 #include "rx/msp.h"
 #include "fc/rc_modes.h"
 #include "common/maths.h"
+#include "flight/zlo.h"
 
 uint16_t rxMspOverrideReadRawRc(const rxRuntimeState_t *rxRuntimeState, const rxConfig_t *rxConfig, uint8_t chan)
 {
@@ -41,4 +42,17 @@ uint16_t rxMspOverrideReadRawRc(const rxRuntimeState_t *rxRuntimeState, const rx
         return rxSample;
     }
 }
+
+uint16_t rxMspAutopilotReadRawRc(const rxRuntimeState_t *rxRuntimeState, const rxConfig_t *rxConfig, uint8_t chan)
+{
+    uint16_t rxSample = (rxRuntimeState->rcReadRawFn)(rxRuntimeState, chan);
+    uint16_t overrideSample = constrainf(rxMspReadRawRC(rxRuntimeState, chan), rxConfig->rx_min_usec, rxConfig->rx_max_usec);
+
+    if (overrideChannel(chan)) {
+        return overrideSample;
+    } else {
+        return rxSample;
+    }
+}
+
 #endif

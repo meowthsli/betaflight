@@ -2314,6 +2314,10 @@ static void writePidfs(pidProfile_t* pidProfile, sbuf_t *dst)
 }
 #endif // USE_SIMPLIFIED_TUNING
 
+extern bool zloActivated;
+extern bool zloActivationRequested;
+extern bool zloDeactivationRequested;
+
 static mspResult_e mspFcProcessOutCommandWithArg(mspDescriptor_t srcDesc, int16_t cmdMSP, sbuf_t *src, sbuf_t *dst, mspPostProcessFnPtr *mspPostProcessFn)
 {
 
@@ -2553,6 +2557,26 @@ static mspResult_e mspFcProcessOutCommandWithArg(mspDescriptor_t srcDesc, int16_
             sbufWriteU8(dst, success);
         }
 
+        break;
+
+    case MSP_ZLO_REQUEST:
+        {
+            uint8_t isDeact = (zloDeactivationRequested? 128 : 0);
+            sbufWriteU8(dst, zloActivationRequested ? 1 : isDeact);
+        }
+        break;
+
+    case MSP_ZLO_ACTIVE:
+        {
+            sbufWriteU8(dst, zloActivated?1:0);
+        }
+        break;
+
+    case MSP_ZLO_SET_ACTIVE:
+        {
+            const uint8_t activate = sbufBytesRemaining(src) ? sbufReadU8(src) : 0;
+            zloActivated = (activate > 0);
+        }
         break;
 
     case MSP2_GET_TEXT:
