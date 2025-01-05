@@ -463,7 +463,7 @@ task_attribute_t task_attributes[TASK_COUNT] = {
     [TASK_GIMBAL] = DEFINE_TASK("GIMBAL", NULL, NULL, gimbalUpdate, TASK_PERIOD_HZ(100), TASK_PRIORITY_MEDIUM),
 #endif
 
-    [TASK_ZLO] = DEFINE_TASK("ZLO", NULL, NULL, zloUpdate, TASK_PERIOD_HZ(10), TASK_PRIORITY_LOW)
+    [TASK_ZLO] = DEFINE_TASK("ZLO", NULL, NULL, zloUpdate, TASK_PERIOD_HZ(25), TASK_PRIORITY_MEDIUM_HIGH)
 };
 
 task_t *getTask(unsigned taskId)
@@ -652,5 +652,5 @@ void tasksInit(void)
     setTaskEnabled(TASK_GIMBAL, true);
 #endif
 
-    setTaskEnabled(TASK_ZLO, true);
+    setTaskEnabled(TASK_ZLO, true); zloInit();
 }
