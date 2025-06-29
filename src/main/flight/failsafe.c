@@ -65,7 +65,7 @@ PG_REGISTER_WITH_RESET_TEMPLATE(failsafeConfig_t, failsafeConfig, PG_FAILSAFE_CO
 #ifdef USE_RACE_PRO
 #define DEFAULT_FAILSAFE_RECOVERY_DELAY 1            // 100ms of valid rx data needed to allow recovery from failsafe and arming block
 #else
-#define DEFAULT_FAILSAFE_RECOVERY_DELAY 5            // 500ms of valid rx data needed to allow recovery from failsafe and arming block
+#define DEFAULT_FAILSAFE_RECOVERY_DELAY 1            // 500ms of valid rx data needed to allow recovery from failsafe and arming block
 #endif
 
 PG_RESET_TEMPLATE(failsafeConfig_t, failsafeConfig,
@@ -92,7 +92,7 @@ const char * const failsafeProcedureNames[FAILSAFE_PROCEDURE_COUNT] = {
  */
 void failsafeReset(void)
 {
-    failsafeState.rxDataFailurePeriod = failsafeConfig()->failsafe_delay * MILLIS_PER_TENTH_SECOND;
+    failsafeState.rxDataFailurePeriod = failsafeConfig()->failsafe_delay * MILLIS_PER_TENTH_SECOND * 10;
     if (failsafeState.rxDataFailurePeriod < PERIOD_RXDATA_RECOVERY){
         // avoid transients and ensure reliable arming for minimum of PERIOD_RXDATA_RECOVERY (100ms)
         failsafeState.rxDataFailurePeriod = PERIOD_RXDATA_RECOVERY;
