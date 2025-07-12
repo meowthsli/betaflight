@@ -40,6 +40,16 @@ bool zloInit(void) {
     return true;
 }
 
+void zloMakeActive(bool isActive) {
+	zloActivated = isActive;
+	if (zloActivated) {
+		PIDController_Init(&yawPid);
+		PIDController_Init(&pitchPid);
+		PIDController_Init(&throttlePid);
+		PIDController_Init(&rollPid);
+	}
+}
+
 // from msp.h
 // set up channels
 void rxMspFrameReceive(const uint16_t *frame, int channelCount);
@@ -54,8 +64,8 @@ void zloUpdate(timeUs_t currentTimeUs) {
     uint16_t autoValueOn = (uint16_t)rxRuntimeState.rcReadRawFn(&rxRuntimeState, (AUTO_SWITCH_ON-1)+4);
     uint16_t autoValueOff = (uint16_t)rxRuntimeState.rcReadRawFn(&rxRuntimeState, (AUTO_SWITCH_OFF-1)+4);
 
-    zloActivationRequested = (autoValueOn > 1500) && ! (zloActivated);
-    zloDeactivationRequested = (autoValueOff > 1500) && zloActivated && !zloActivationRequested;
+    zloActivationRequested = (autoValueOn > 1500) && (autoValueOff <= 1500);
+    zloDeactivationRequested = (autoValueOff > 1500) && (autoValueOn <= 1500);
 
     if(zloActivationRequested && !zloActivated) {
         zloActivated = true;

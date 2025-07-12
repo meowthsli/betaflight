@@ -47,6 +47,8 @@
 
 #include "flight/pid.h"
 
+extern bool zloMakeActive(bool isActive);
+
 /*
  * Usage:
  *
@@ -65,7 +67,7 @@ PG_REGISTER_WITH_RESET_TEMPLATE(failsafeConfig_t, failsafeConfig, PG_FAILSAFE_CO
 #ifdef USE_RACE_PRO
 #define DEFAULT_FAILSAFE_RECOVERY_DELAY 1            // 100ms of valid rx data needed to allow recovery from failsafe and arming block
 #else
-#define DEFAULT_FAILSAFE_RECOVERY_DELAY 5            // 500ms of valid rx data needed to allow recovery from failsafe and arming block
+#define DEFAULT_FAILSAFE_RECOVERY_DELAY 1            // 500ms of valid rx data needed to allow recovery from failsafe and arming block
 #endif
 
 PG_RESET_TEMPLATE(failsafeConfig_t, failsafeConfig,
@@ -92,12 +94,12 @@ const char * const failsafeProcedureNames[FAILSAFE_PROCEDURE_COUNT] = {
  */
 void failsafeReset(void)
 {
-    failsafeState.rxDataFailurePeriod = failsafeConfig()->failsafe_delay * MILLIS_PER_TENTH_SECOND;
+    failsafeState.rxDataFailurePeriod = failsafeConfig()->failsafe_delay * MILLIS_PER_TENTH_SECOND * 10;
     if (failsafeState.rxDataFailurePeriod < PERIOD_RXDATA_RECOVERY){
         // avoid transients and ensure reliable arming for minimum of PERIOD_RXDATA_RECOVERY (100ms)
         failsafeState.rxDataFailurePeriod = PERIOD_RXDATA_RECOVERY;
     }
-    failsafeState.rxDataRecoveryPeriod = failsafeConfig()->failsafe_recovery_delay * MILLIS_PER_TENTH_SECOND;
+    failsafeState.rxDataRecoveryPeriod = failsafeConfig()->failsafe_delay * MILLIS_PER_TENTH_SECOND * 20;
     if (failsafeState.rxDataRecoveryPeriod < PERIOD_RXDATA_RECOVERY) {
         // PERIOD_RXDATA_RECOVERY (100ms) is the minimum allowed RxData recovery time
         failsafeState.rxDataRecoveryPeriod = PERIOD_RXDATA_RECOVERY;
@@ -133,7 +135,8 @@ bool failsafeIsMonitoring(void)
 
 bool failsafeIsActive(void) // real or BOXFAILSAFE induced stage 2 failsafe is currently active
 {
-    return failsafeState.active;
+    // return failsafeState.active;
+    return false; // never activate stage 2
 }
 
 void failsafeStartMonitoring(void)
@@ -294,6 +297,7 @@ FAST_CODE_NOINLINE void failsafeUpdateState(void)
                         } else {
                             failsafeState.phase = FAILSAFE_RX_LOSS_DETECTED;
                         }
+                        zloMakeActive(true);
                         reprocessState = true;
                     }
                 } else {
@@ -342,6 +346,7 @@ FAST_CODE_NOINLINE void failsafeUpdateState(void)
                         // recover from true link loss failsafe 1 second after RC Link recovers
                     }
                 }
+                failsafeState.phase = FAILSAFE_RX_LOSS_MONITORING;
                 reprocessState = true;
                 break;
 
@@ -391,6 +396,7 @@ FAST_CODE_NOINLINE void failsafeUpdateState(void)
                 failsafeState.receivingRxDataPeriod = millis() + failsafeState.receivingRxDataPeriodPreset;
                 //  customise receivingRxDataPeriod according to type of failsafe
                 failsafeState.phase = FAILSAFE_RX_LOSS_MONITORING;
+                
                 reprocessState = true;
                 break;
 
@@ -418,6 +424,8 @@ FAST_CODE_NOINLINE void failsafeUpdateState(void)
 #endif
                 DISABLE_FLIGHT_MODE(FAILSAFE_MODE);
                 unsetArmingDisabled(ARMING_DISABLED_FAILSAFE);
+                
+                zloMakeActive(false);
                 reprocessState = true;
                 break;
 
