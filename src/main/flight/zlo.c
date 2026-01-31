@@ -81,10 +81,10 @@ void zloUpdate(timeUs_t currentTimeUs) {
 
         // 3. update rxMsp AETR channels from yaw, pitch, roll PID
         uint16_t frame[4] = {
-            (uint16_t)(ch[0] + yawPid.out),
+            (uint16_t)(ch[0] + rollPid.out),
             (uint16_t)(ch[1] + pitchPid.out),
             (uint16_t)(ch[2] + throttlePid.out), // .out is always zero
-            (uint16_t)(ch[3] + rollPid.out)
+            (uint16_t)(ch[3] + yawPid.out)
             };
         rxMspFrameReceive(frame, 4);
     } else { // no autonomous
@@ -113,8 +113,8 @@ void zloUpdate(timeUs_t currentTimeUs) {
         (uint16_t)(attitude.values.yaw/10),
         (uint16_t)(attitude.values.pitch/10),
         (uint16_t)(attitude.values.roll/10),
-        ch[0] + (uint16_t)yawPid.out, ch[1] + (uint16_t)pitchPid.out,
-            ch[2] + (uint16_t)throttlePid.out, ch[3] + (uint16_t)rollPid.out
+        ch[0] + (uint16_t)rollPid.out, ch[1] + (uint16_t)pitchPid.out,
+            ch[2] + (uint16_t)throttlePid.out, ch[3] + (uint16_t)yawPid.out
         );
 }
 
